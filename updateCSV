@@ -1,0 +1,39 @@
+curr_dir=`pwd`
+if [ -d latestNAV ]; then
+	cd latestNAV
+	if [ -f latestNAV.csv ]; then
+		mv latestNAV.csv old.csv
+	fi
+	cd ..
+else
+	mkdir latestNAV
+fi
+
+timestamp=`date +%d%m%Y%I%M%S`
+latestNAVurl="https://www.amfiindia.com/spages/NAVAll.txt?t="+"${timestamp}"
+curl "${latestNAVurl}" > latestNAV/latestNAV.csv	
+if [ -f latestNAV/old.csv ]; then
+	diff_file=`diff -qs "latestNAV/old.csv" "latestNAV/latestNAV.csv" | awk -F" " '{print $NF}'`
+	if [ $diff_file = "differ" ]; then
+		cd navData
+		csvlist=`ls`
+		for csv in $csvlist
+		do
+			mfId=`echo $csv | awk -F"." '{print $1}'`
+			latestMfLine=`grep $mfId "../latestNAV/latestNAV.csv"`
+			latestdate=`echo $latestMfLine | awk -F";" '{print $6}'`
+			localdate=`cat $csv | tail -n 1 | awk -F";" '{print $6}'`
+			if [ "${latestdate}" != "${localdate}" ]; then
+				latestNAV=`echo $latestMfLine | awk -F";" '{print $5}'`
+				mfName=`cat $csv | tail -n 1 |awk -F";" '{print $2}'`
+				echo "${mfId};${mfName};${latestNAV};;;${latestdate}" >> ${csv}
+			fi
+		done
+        else
+		echo "same latestNAV"
+        fi
+fi
+
+rm -f "${curr_dir}/latestNAV/old.csv"
+cd ${curr_dir}
+./processInvDetails true

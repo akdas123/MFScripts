@@ -1,0 +1,16 @@
+for option in $optionList
+do
+	cd $curr_dir
+	csvList=`ls navData`
+	cd navData
+	for csv in $csvList
+	do
+		matchCount=`grep -ci $option $csv`
+		if [ $matchCount -gt 0 ]; then
+			rm -f $csv
+		fi
+		
+	done
+done
+
+cd $curr_dir

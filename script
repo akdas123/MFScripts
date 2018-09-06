@@ -1,0 +1,5 @@
+while [ 1 ]
+do
+	./processInvDetails
+	sleep 5s
+done

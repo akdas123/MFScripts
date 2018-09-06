@@ -1,0 +1,42 @@
+while read -r line
+do
+	id=`echo $line | awk -F";" '{print $2}'`
+	type=`echo $line | awk -F";" '{print $3}'`
+	if [ "$id" != "AMC Code" ]; then
+		typecount=`echo $type | awk -F"-" '{print NF}'`
+		if [ $typecount -gt 1 ]; then
+			for (( i=1; i<=$typecount; i++ )) 
+			do
+				type2=`echo $type | awk -F"-" '{print $($i)}'`
+				echo "$id $i"
+				./downloadCSV $id $i
+			done
+		else
+			echo "$id $type"
+			./downloadCSV $id $type
+		fi
+		idArray+=($id)
+	fi
+	
+done < mfcode
+	
+./extractCSV
+
+pwd=`pwd`
+echo $pwd
+
+if [ -d navData ]; then
+	rm -rf navData/*
+else 
+	mkdir navData 
+fi
+for id in "${idArray[@]}"
+do
+	cp $id/master/* navData/
+done
+./removeCSV Regular Dividend
+
+./createMfList
+
+
+
