@@ -1,0 +1,28 @@
+list=`ls navData`
+for item in $list
+do
+	sed -i '/^$/d' navData/$item
+	lastDate=`cat navData/$item | tail -n 1 | awk -F";" '{print $6}'`
+	if [ ! -z $lastDate ]; then
+		echo $lastDate
+		if [ -f temp/$item ]; then
+			matchedlineNo=`grep -n $lastDate temp/$item | awk -F":" '{print $1}'` 
+			if [ ! -z $matchedlineNo ]; then
+				lastlineNo=`wc -l < temp/$item`
+				echo $matchedlineNo
+				echo $lastlineNo
+				totalNewLines=$(( $lastlineNo - $matchedlineNo ))
+				if [ $totalNewLines -gt 0 ]; then
+					newlines=`cat temp/$item | head -n $lastlineNo | tail -n $totalNewLines`
+					echo $newlines 
+					echo $newlines >> navData/$item
+				fi
+			fi
+		fi
+	else
+		echo "nothing to do"
+	fi
+done
+
+
+

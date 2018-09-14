@@ -1,5 +1,6 @@
 amcNumber=$1
 mfType=$2
+updateTag=$3
 
 
 day=`date | awk -F" " '{print $3}'`
@@ -13,6 +14,11 @@ if [ -d $amcNumber ]; then
 else
 	mkdir $amcNumber
 fi
-downloadUrl="http://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?mf=${amcNumber}&tp=${mfType}&frmdt=01-Jan-2010&todt=${latestDate}"
+
+if [ $updateTag = "true" ]; then
+	downloadUrl="http://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?mf=${amcNumber}&tp=${mfType}&frmdt=01-Sep-2018&todt=${latestDate}"
+else
+	downloadUrl="http://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?mf=${amcNumber}&tp=${mfType}&frmdt=01-Jan-2010&todt=${latestDate}"
+fi
 curl "${downloadUrl}" > "${amcNumber}/${amcNumber}_${mfType}_main".csv
 

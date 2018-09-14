@@ -1,3 +1,5 @@
+updateTag=$1
+
 while read -r line
 do
 	id=`echo $line | awk -F";" '{print $2}'`
@@ -9,11 +11,11 @@ do
 			do
 				type2=`echo $type | awk -F"-" '{print $($i)}'`
 				echo "$id $i"
-				./downloadCSV $id $i
+				./downloadCSV $id $i $updateTag
 			done
 		else
 			echo "$id $type"
-			./downloadCSV $id $type
+			./downloadCSV $id $type	$updateTag
 		fi
 		idArray+=($id)
 	fi
@@ -24,19 +26,32 @@ done < mfcode
 
 pwd=`pwd`
 echo $pwd
-
-if [ -d navData ]; then
-	rm -rf navData/*
-else 
-	mkdir navData 
+if [ -d temp ]; then
+	rm -rf temp
+	
 fi
-for id in "${idArray[@]}"
-do
-	cp $id/master/* navData/
-done
+mkdir temp
+if [ $updateTag = "true" ]; then
+	for id in "${idArray[@]}"
+	do
+		cp $id/master/* temp/
+	done
+	echo "yyyyy"
+	./appendCSV
+else
+	if [ -d navData ]; then
+		rm -rf navData/*
+	else 
+		mkdir navData 
+		for id in "${idArray[@]}"
+		do
+			cp $id/master/* navData/
+		done
+	fi
+fi
+
 ./removeCSV Regular Dividend
 
 ./createMfList
-
 
 
