@@ -1,0 +1,85 @@
+echo -e "\n\033[0;32mHello..!! let's process the Mutual Fund database\033[0m\n"
+echo -e "What would you like to do today with the database  \033[0;36m(create/update)\033[0m ? \c"
+read choice
+
+case "$choice" in
+
+    create)
+        echo -e "Have you created the database earlier \033[0;36m(yes/no)\033[0m ? \c"
+                read createChoice
+                case "$createChoice" in
+
+                        yes)
+                                echo -e "\033[1;33mAre you sure ! You want to bulk update CSV \033[0;36m(Y/N)\033[0m ?? \c"
+								read bulkUpdateChoice
+								case "$bulkUpdateChoice" in
+									Y)
+										echo "ok, let's start....."
+										if [ -d portfolio ]; then
+											mv portfolio ../portfolioTemp
+										fi
+										./createCSV true
+										mv ../portfolioTemp ./portfolio
+										if [ -d latestNAV ]; then
+											rm -rf latestNAV
+										fi
+										mkdir latestNAV
+										touch latestNAV/latestNAV.csv
+										./updateCSV
+										;;
+									N)
+										exit
+										;;
+								esac
+                                ;;
+                        no)
+                                echo -e "\033[1;33mAre you sure ! You want to create CSV from scratch \033[0;36m(Y/N)\033[0m ?? \c"
+								read startChoice
+								case "$startChoice" in
+									Y)
+										echo "ok, let's start....."
+										if [ -d portfolio ]; then
+											mv portfolio ../portfolioTemp
+										fi
+										list=`ls`
+										for item in $list
+										do
+											if [ -d $item ]; then
+												rm -rf $item
+											fi
+										done
+										./createCSV false
+										mv ../portfolioTemp ./portfolio
+										mkdir latestNAV
+										touch latestNAV/latestNAV.csv
+										./updateCSV
+										;;
+									N)
+										exit
+										;;
+								esac
+                                ;;
+                        *)
+                                echo -e "\033[0;31m$createChoice is not a valid choice\033[0m"
+                                ;;
+                esac
+
+        ;;
+    update)
+        echo -e "\033[1;33mAre you sure ! You have updated CSV yesterday \033[0;36m(Y/N)\033[0m ?? \c"
+		read updateChoice
+		case "$updateChoice" in
+			Y)
+				echo "ok, let's update then........."
+				./updateCSV
+				;;
+			N)
+				exit
+				;;
+		esac
+        ;;
+    *)
+        echo -e "\033[0;31m$choice is not a valid choice\033[0m"
+        ;;
+esac
+
